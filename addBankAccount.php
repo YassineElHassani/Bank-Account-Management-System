@@ -1,3 +1,37 @@
+<?php
+require_once "./classes/accountManger.php";
+require_once "./classes/savingsAccount.php";
+require_once "./classes/currentAccount.php";
+require_once "./classes/businessAccount.php";
+
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $accountType = $_POST['accountType'];
+    $customerName = $_POST['customerName'];
+    $balance = (float)$_POST['balance'];
+    $manager = new AccountManager();
+
+    try {
+        if ($accountType === 'savings') {
+            $interest = (float)$_POST['interest'];
+            $account = new SavingsAccount($customerName, $balance, $interest);
+        } elseif ($accountType === 'current') {
+            $overdraftLimit = (float)$_POST['overdraftLimit'];
+            $account = new CurrentAccount($customerName, $balance, $overdraftLimit);
+        } elseif ($accountType === 'business') {
+            $transactionFee = (float)$_POST['transactionFee'];
+            $account = new BusinessAccount($customerName, $balance, $transactionFee);
+        } else {
+            throw new Exception("Invalid account type selected.");
+        }
+
+        $manager->addData($account);
+        $message = "Account added successfully!";
+    } catch (Exception $e) {
+        $error = "Error: " . $e->getMessage();
+    }
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -14,68 +48,73 @@
         </div>
     </div>
 
-    <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-        <div class="max-w-2xl w-full space-y-10 bg-white p-8 rounded-lg shadow">
-            <!-- Header -->
-            <div>
-                <h2 class="text-2xl font-bold text-gray-900 text-center">Add New Bank Account</h2>
-                <p class="mt-2 text-center text-gray-600">Fill in the details to create a new bank account</p>
+    <div class="container mx-auto my-10 p-5 bg-white shadow-lg rounded-md">
+        <h1 class="text-2xl font-bold mb-5">Add New Bank Account</h1>
+
+        <?php if (!empty($message)): ?>
+            <div class="bg-green-100 text-green-700 p-3 rounded mb-5">
+                <?= htmlspecialchars($message) ?>
+            </div>
+        <?php elseif (!empty($error)): ?>
+            <div class="bg-red-100 text-red-700 p-3 rounded mb-5">
+                <?= htmlspecialchars($error) ?>
+            </div>
+        <?php endif; ?>
+
+        <form action="addBankAccount.php" method="POST">
+            <div class="mb-4">
+                <label for="customerName" class="block font-medium">Customer Name</label>
+                <input type="text" name="customerName" id="customerName" required 
+                       class="w-full border border-gray-300 rounded p-2">
             </div>
 
-            <!-- Form -->
-            <form class="mt-8 space-y-6" method="POST" action="./classes/accountManager.php">
-                <!-- Account Type Section -->
-                <div class="space-y-4">
-                    <h3 class="text-lg font-medium text-gray-900">Account Information</h3>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700">Account Type</label>
-                            <select name="accountType" class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
-                                <option value="">Select account type</option>
-                                <option value="savings">Savings Account</option>
-                                <option value="current">Current Account</option>
-                                <option value="business">Business Account</option>
-                            </select>
-                        </div>
+            <div class="mb-4">
+                <label for="balance" class="block font-medium">Initial Balance</label>
+                <input type="number" step="0.01" name="balance" id="balance" required 
+                       class="w-full border border-gray-300 rounded p-2">
+            </div>
 
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700">Amount</label>
-                            <div class="mt-1 relative rounded-md shadow-sm">
-                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <span class="text-gray-500 sm:text-sm">$</span>
-                                </div>
-                                <input name="balance" type="number" class="pl-7 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" placeholder="0.00">
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            <div class="mb-4">
+                <label for="accountType" class="block font-medium">Account Type</label>
+                <select name="accountType" id="accountType" required 
+                        class="w-full border border-gray-300 rounded p-2">
+                    <option value="" disabled selected>Select Account Type</option>
+                    <option value="savings">Savings Account</option>
+                    <option value="current">Current Account</option>
+                    <option value="business">Business Account</option>
+                </select>
+            </div>
 
-                <!-- Customer Information Section -->
-                <div class="space-y-4">
-                    <h3 class="text-lg font-medium text-gray-900">Customer Information</h3>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-1 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700">Full Name</label>
-                            <input name="accountName" type="text" class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
-                        </div>
-                    </div>
-                </div>
+            <div id="savingsFields" class="hidden mb-4">
+                <label for="interest" class="block font-medium">Interest Rate</label>
+                <input type="number" step="0.01" name="interest" id="interest" 
+                       class="w-full border border-gray-300 rounded p-2">
+            </div>
 
-                <!-- Form Actions -->
-                <div class="flex items-center justify-end space-x-4">
-                    <a href="./index.php">
-                        <button type="button" class="py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                            Cancel
-                        </button>
-                    </a>
-                    <button type="submit"  class="py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                        Create Account
+            <div id="currentFields" class="hidden mb-4">
+                <label for="overdraftLimit" class="block font-medium">Overdraft Limit</label>
+                <input type="number" step="0.01" name="overdraftLimit" id="overdraftLimit" 
+                       class="w-full border border-gray-300 rounded p-2">
+            </div>
+
+            <div id="businessFields" class="hidden mb-4">
+                <label for="transactionFee" class="block font-medium">Transaction Fee</label>
+                <input type="number" step="0.01" name="transactionFee" id="transactionFee" 
+                       class="w-full border border-gray-300 rounded p-2">
+            </div>
+
+            <div class="flex items-center justify-end space-x-4">
+                <a href="./index.php">
+                    <button type="button" class="py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        Cancel
                     </button>
-                </div>
-            </form>
-        </div>
+                </a>
+                <button type="submit" name="submit" class="py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    Create Account
+                </button>
+            </div>
+        </form>
     </div>
+    <script src="./script/script.js"></script>
 </body>
 </html>
