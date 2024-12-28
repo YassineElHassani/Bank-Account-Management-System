@@ -1,11 +1,8 @@
 <?php
-require './config/db_conn.php';
+require_once "./classes/accountManger.php";
 
-session_start();
-if(isset($_SESSION['msg']) === true) {
-    echo "All fields are required!!";
-    unset($_SESSION['msg']);
-}
+$manager = new AccountManager();
+$account = $manager->displayData();
 
 ?>
 
@@ -24,36 +21,22 @@ include './layout/header.php'
         </tr>
     </thead>
     <tbody class="divide-y divide-gray-200">
-        <tr class="hover:bg-gray-50">
-            <td class="px-6 py-4">AC-2024-001</td>
-            <td class="px-6 py-4">John Doe</td>
-            <td class="px-6 py-4">Savings Account</td>
-            <td class="px-6 py-4">$5,280.00</td>
-            <td class="px-6 py-4">
-                <button class="text-blue-600 hover:text-blue-800">Edit</button>
-                <button class="text-red-600 hover:text-red-800 ml-4">Delete</button>
-            </td>
-        </tr>
-        <tr class="hover:bg-gray-50">
-            <td class="px-6 py-4">AC-2024-002</td>
-            <td class="px-6 py-4">Jane Smith</td>
-            <td class="px-6 py-4">Current Account</td>
-            <td class="px-6 py-4">$12,750.00</td>
-            <td class="px-6 py-4">
-                <button class="text-blue-600 hover:text-blue-800">Edit</button>
-                <button class="text-red-600 hover:text-red-800 ml-4">Delete</button>
-            </td>
-        </tr>
-        <tr class="hover:bg-gray-50">
-            <td class="px-6 py-4">AC-2024-003</td>
-            <td class="px-6 py-4">Tech Corp Ltd</td>
-            <td class="px-6 py-4">Business Account</td>
-            <td class="px-6 py-4">$45,920.00</td>
-            <td class="px-6 py-4">
-                <button class="text-blue-600 hover:text-blue-800">Edit</button>
-                <button class="text-red-600 hover:text-red-800 ml-4">Delete</button>
-            </td>
-        </tr>
+    <?php 
+        $i = 0;
+        while ($i < count($account)): ?>
+            <tr class="hover:bg-gray-50">
+                <td class="px-6 py-4"><?php echo htmlspecialchars($account[$i]['id']) ?></td>
+                <td class="px-6 py-4"><?php echo htmlspecialchars($account[$i]['customerName']) ?></td>
+                <td class="px-6 py-4"><?php echo htmlspecialchars($account[$i]['accountType']) ?></td>
+                <td class="px-6 py-4"><?php echo htmlspecialchars($account[$i]['balance']) ?></td>
+                <td class="px-6 py-4">
+                    <button class="focus:outline-none bg-yellow-400 hover:bg-yellow-500 focus:ring-4 focus:ring-yellow-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:focus:ring-yellow-900"><img src="./assest/editing.png" alt="edit" height="20px" width="20px"></button>
+                    <button class="focus:outline-none bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900"><img src="./assest/delete.png" alt="delete" height="20px" width="20px"></button>
+                </td>
+            </tr>
+        <?php 
+        $i++;
+        endwhile; ?>
     </tbody>
 </table>
 
@@ -61,17 +44,3 @@ include './layout/header.php'
 <?php
 include './layout/footer.php'
 ?>
-
-<center><label for="role">Choose your role:</label>
-        <select name="role" id="role">
-            <?php 
-                $stmt = $pdo->prepare('SELECT * FROM role');
-                $stmt->execute();
-                $result = $stmt->fetchAll();
-
-                foreach($result as $row) {
-                    echo "<option value='$row[id]'>$row[role]</option>";
-                }
-            ?>
-        </select></center><br>
-        <center><button type="submit">Register</button></center>
