@@ -1,14 +1,23 @@
 <?php
-require_once '../config/db_conn.php';
+require_once 'account.php';
 
 class businessAccount extends account{
     
-    public function __construct($accountNumber, $accountName, $balance) {
-        $this->accountNumber = new $accountNumber;
-        $this->accountName = new $accountName;
-        $this->balance = new $balance;
+    private $transactionFee;
 
+    public function __construct($customerName, $balance, $transactionFee) {
+        parent::__construct($customerName, $balance);
+        $this->transactionFee = $transactionFee;
     }
+
+    public function getTransactionFee() {
+        return $this->transactionFee;
+    }
+
+    public function setTransactionFee($newTransactionFee) {
+        $this->transactionFee = $newTransactionFee;
+    }
+
 }
 
 ?>
