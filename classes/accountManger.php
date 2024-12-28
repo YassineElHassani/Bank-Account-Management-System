@@ -47,15 +47,21 @@ class AccountManager {
     }
 
     public function displayData() {
-        $stmt = $this->conn->query("SELECT a.id, a.customerName, a.balance, 
-                                    s.interest, c.overdraftLimit, b.transactionFee 
-                                    FROM account a
-                                    LEFT JOIN savingsAccount s ON a.id = s.accountID
-                                    LEFT JOIN currentAccount c ON a.id = c.accountID
-                                    LEFT JOIN businessAccount b ON a.id = b.accountID");
-
+        $stmt = $this->conn->prepare("SELECT account.id, account.customerName, account.balance, 
+                                      CASE 
+                                          WHEN businessAccount.accountID IS NOT NULL THEN 'Business Account' 
+                                          WHEN currentAccount.accountID IS NOT NULL THEN 'Current Account'
+                                          WHEN savingsAccount.accountID IS NOT NULL THEN 'Savings Account'
+                                      END AS accountType
+                                      FROM account
+                                      LEFT JOIN businessAccount ON account.id = businessAccount.accountID
+                                      LEFT JOIN currentAccount ON account.id = currentAccount.accountID
+                                      LEFT JOIN savingsAccount ON account.id = savingsAccount.accountID");
+    
+        $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+    
 
     public function editData($id, Account $account) {
         $stmt = $this->conn->prepare("UPDATE account 
