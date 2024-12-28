@@ -1,36 +1,42 @@
 <?php
-require_once '../config/db_conn.php';
+require_once './config/db_conn.php';
 
 class account {
-
-    // protected $accountType;
-    protected $accountName;
+    protected $account_id;
+    protected $customerName;
     protected $balance;
 
-    public function __construct($accountName, $balance){
+    public function __construct($customerName, $balance){
 
-        // $this->accountType = $accountType;
-        $this->accountName = $accountName;
+        $this->customerName = $customerName;
         $this->balance = $balance;
         
     }
-    
 
-    // public function getAccountNumber() {
-    //     return $this-> accountNumber;
-    // }
+    public function getID() {
+        return $this->account_id;
+    }
 
-    // public function getAccountName() {
-    //     return $this-> accountName;
-    // }
+    public function setID($newID) {
+        $this->account_id = $newID;
+    }
 
-    // public function getBalance() {
-    //     return $this-> balance;
-    // }
+    public function getName() {
+        return $this->customerName;
+    }
+
+    public function setName($newName) {
+        $this->customerName = $newName;
+    }
+
+    public function getBalance() {
+        return $this->balance;
+    }
+
+    public function setBalance($newBalance) {
+        $this->balance = $newBalance;
+    }
+
 }
-
-// $account = new account(1, 'tessst', 20.1);
-
-// echo $account->getAccountName();
 
 ?>
