@@ -50,6 +50,7 @@ This project is a part of NeoBank's modernization initiative, aimed at improving
 - `account` (Parent table): Contains general account information.
 - `savingsAccount`, `currentAccount`, `businessAccount`: Child tables with account type-specific fields.
 
+```
 ### Code Structure
 ├── config/
 │   └── db_conn.php      # Database connection
@@ -64,3 +65,4 @@ This project is a part of NeoBank's modernization initiative, aimed at improving
 ├── deleteBankAccount.php  # Form for deleting accounts
 ├── index.php            # Main interface to display accounts
 └── README.md            # Documentation
+```
